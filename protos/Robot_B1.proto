@@ -1,0 +1,244 @@
+#VRML_SIM R2023b utf8
+# template language: javascript
+
+# Robot_B1
+# A cylindrical body (radius 0.09 m) with four omnidirectional wheels
+# mounted at 45, 135, 225 and 315 degrees around the body (an "X" layout),
+# each wheel's rolling axis tangential to the body circle at its mount angle.
+#
+# Wheel motors/sensors are named:
+#   wheel1_45_motor  / wheel1_45_sensor
+#   wheel2_135_motor / wheel2_135_sensor
+#   wheel3_225_motor / wheel3_225_sensor
+#   wheel4_315_motor / wheel4_315_sensor
+
+PROTO Robot_B1 [
+  field SFVec3f    translation     0 0 0.03
+  field SFRotation rotation        0 0 1 0
+  field SFString   name            "Robot_B1"
+  field SFString   controller      "Robot_B1"
+  field MFString   controllerArgs  []
+  field SFString   customData      ""
+  field SFBool     supervisor      FALSE
+  field SFBool     synchronization TRUE
+  field MFNode     extensionSlot   []
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    controllerArgs IS controllerArgs
+    customData IS customData
+    supervisor IS supervisor
+    synchronization IS synchronization
+    children [
+      # ---- Body ----
+      Shape {
+        appearance PBRAppearance {
+          baseColor 0.15 0.15 0.85
+          roughness 0.6
+          metalness 0
+        }
+        geometry Cylinder {
+          height 0.06
+          radius 0.09
+          subdivision 32
+        }
+      }
+
+      # ---- Compass ----
+      Compass {
+        translation 0 0 0.03
+        name "compass"
+      }
+
+      # ---- Distance Sensors ----
+      # Front Sensor (pointing +X)
+      DistanceSensor {
+        translation 0.09 0 0
+        rotation 0 0 1 0
+        name "ds_front"
+        lookupTable [
+          0 1000 0
+          0.5 0 0
+        ]
+      }
+      # Left Sensor (pointing +Y)
+      DistanceSensor {
+        translation 0 0.09 0
+        rotation 0 0 1 1.570796
+        name "ds_left"
+        lookupTable [
+          0 1000 0
+          0.5 0 0
+        ]
+      }
+      # Back Sensor (pointing -X)
+      DistanceSensor {
+        translation -0.09 0 0
+        rotation 0 0 1 3.1415926
+        name "ds_back"
+        lookupTable [
+          0 1000 0
+          0.5 0 0
+        ]
+      }
+      # Right Sensor (pointing -Y)
+      DistanceSensor {
+        translation 0 -0.09 0
+        rotation 0 0 1 -1.570796
+        name "ds_right"
+        lookupTable [
+          0 1000 0
+          0.5 0 0
+        ]
+      }
+      # ---- GPS (to know robot absolute position) ----
+      GPS {
+        translation 0 0 0.03
+        name "gps"
+      }
+
+      # ---- Receiver (to get ball position) ----
+      Receiver {
+        name "receiver"
+      }
+
+
+      # ---- Visual Details Only ----
+
+      # Top plate
+      Pose {
+        translation 0 0 0.12
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.15 0.15 0.85
+              roughness 0.25
+              metalness 0.05
+            }
+            geometry Cylinder {
+              height 0.003
+              radius 0.075
+              subdivision 32
+            }
+          }
+        ]
+      }
+
+      # Team-color top ring
+      Pose {
+        translation 0 0 0.0815
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0 0 0
+              roughness 0.35
+              metalness 0.05
+              transparency 0.1
+            }
+            geometry Cylinder {
+              height 0.1
+              radius 0.05
+              subdivision 32
+            }
+          }
+        ]
+      }
+
+
+
+      %<
+        // --- configurable constants ---
+        const wheelRadius = 0.03;
+        const wheelWidth  = 0.01;
+        const mountRadius = 0.085;   // distance from body center to wheel axle
+        const wheelNames  = ['wheel1_45', 'wheel2_135', 'wheel3_225', 'wheel4_315'];
+
+        for (let i = 0; i <= 3; i = i + 1) {
+          const alphaDeg = 45 + i * 90;
+          const alpha = alphaDeg * Math.PI / 180;
+          const px = mountRadius * Math.cos(alpha);
+          const py = mountRadius * Math.sin(alpha);
+          const pz = -0.01;
+          
+          // Tangential direction at this mount angle -> hinge/rolling axis
+          const axisX = -Math.sin(alpha);
+          const axisY =  Math.cos(alpha);
+      >%
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis %<= -axisX >% %<= axisY >% 0
+          anchor %<= px >% %<= py >% %<= pz >%
+        }
+        device [
+          RotationalMotor {
+            name "%<= wheelNames[i] >%_motor"
+            maxVelocity 20
+            maxTorque 1
+          }
+          PositionSensor {
+            name "%<= wheelNames[i] >%_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation %<= px >% %<= py >% %<= pz >%
+          # Rotate the Solid's coordinate frame around the Z-axis by alpha.
+          # This aligns the Solid's local X-axis radially, and local Y-axis tangentially (matching the hinge axis).
+          rotation 0 0 1 %<= -alpha >%
+          contactMaterial "omni_wheel"
+          children [
+            # We rotate the visual shape 90 degrees around its local X-axis (radial) 
+            # so the cylinder stands vertically on its rolling edge.
+            Pose {
+              rotation 1 0 0 1.570796
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.1 0.1 0.1
+                    roughness 0.8
+                  }
+                  geometry Cylinder {
+                    height %<= wheelWidth >%
+                    radius %<= wheelRadius >%
+                    subdivision 24
+                  }
+                }
+              ]
+            }
+          ]
+          name "%<= wheelNames[i] >%"
+          # We must apply the same rotation to the boundingObject so the physics collision aligns with the visual cylinder.
+          boundingObject Pose {
+            rotation 1 0 0 1.570796
+            children [
+              Cylinder {
+                height %<= wheelWidth >%
+                radius %<= wheelRadius >%
+              }
+            ]
+          }
+          physics Physics {
+            density -1
+            mass 0.05
+          }
+        }
+      }
+      %< } >%
+
+      Group {
+        children IS extensionSlot
+      }
+    ]
+    boundingObject Cylinder {
+      height 0.06
+      radius 0.09
+    }
+    physics Physics {
+      density -1
+      mass 10
+    }
+  }
+}

@@ -1,0 +1,233 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "../protos/Robot_Y1.proto"
+EXTERNPROTO "../protos/Robot_Y2.proto"
+EXTERNPROTO "../protos/Robot_B1.proto"
+EXTERNPROTO "../protos/Robot_B2.proto"
+
+WorldInfo {
+  contactProperties [
+    ContactProperties {
+    }
+    ContactProperties {
+      material1 "omni_wheel"
+      coulombFriction [
+        0, 1
+      ]
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position 0.06878967884152665 0.0025434715593616298 4.434916667472452
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+DEF FIELD Solid {
+  children [
+    DEF WALL1 Pose {
+      translation -1.215 0 0.11
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.101961 0.101961 0.101961
+          }
+          geometry Box {
+            size 0.02 1.82 0.22
+          }
+        }
+      ]
+    }
+    DEF WALL2 Pose {
+      translation 1.215 0 0.11
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.101961 0.101961 0.101961
+          }
+          geometry Box {
+            size 0.02 1.82 0.22
+          }
+        }
+      ]
+    }
+    DEF GOAL_Y1 Pose {
+      translation 1.145 0 0.05
+      children [
+        Shape {
+          appearance DEF Y_COLOR PBRAppearance {
+            baseColor 0.737255 0.686275 0
+            metalness 0
+          }
+          geometry Box {
+            size 0.02 0.6 0.1
+          }
+        }
+      ]
+    }
+    DEF GOAL_Y2 Pose {
+      translation 1.146 0.3 0.05
+      children [
+        Shape {
+          appearance USE Y_COLOR
+          geometry Box {
+            size 0.12 0.02 0.1
+          }
+        }
+      ]
+    }
+    DEF GOAL_Y3 Pose {
+      translation 1.146 -0.3 0.05
+      children [
+        Shape {
+          appearance USE Y_COLOR
+          geometry Box {
+            size 0.12 0.02 0.1
+          }
+        }
+      ]
+    }
+    DEF GOAL_B1 Pose {
+      translation -1.145 0 0.05
+      children [
+        Shape {
+          appearance DEF B_COLOR PBRAppearance {
+            baseColor 0 0 0.498039
+            metalness 0
+          }
+          geometry Box {
+            size 0.02 0.6 0.1
+          }
+        }
+      ]
+    }
+    DEF GOAL_B2 Pose {
+      translation -1.146 0.3 0.05
+      children [
+        Shape {
+          appearance USE B_COLOR
+          geometry Box {
+            size 0.12 0.02 0.1
+          }
+        }
+      ]
+    }
+    DEF GOAL_B3 Pose {
+      translation -1.146 -0.3 0.05
+      children [
+        Shape {
+          appearance USE B_COLOR
+          geometry Box {
+            size 0.12 0.02 0.1
+          }
+        }
+      ]
+    }
+    DEF WALL3 Pose {
+      translation 0 -0.91 0.11
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.101961 0.101961 0.101961
+          }
+          geometry Box {
+            size 2.43 0.02 0.22
+          }
+        }
+      ]
+    }
+    DEF WALL4 Pose {
+      translation 0 0.91 0.11
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.101961 0.101961 0.101961
+          }
+          geometry Box {
+            size 2.43 0.02 0.22
+          }
+        }
+      ]
+    }
+    DEF GROUND Pose {
+      children [
+        Shape {
+          appearance Appearance {
+            texture ImageTexture {
+              url [
+                "assets/floor.png"
+              ]
+            }
+          }
+          geometry Plane {
+            size 2.43 1.82
+          }
+        }
+      ]
+    }
+  ]
+  boundingObject Group {
+    children [
+      USE WALL2
+      USE GOAL_Y1
+      USE GOAL_Y1
+      USE GOAL_Y2
+      USE GOAL_Y3
+      USE GOAL_B1
+      USE GOAL_B2
+      USE GOAL_B3
+      USE WALL3
+      USE WALL4
+      USE WALL1
+      USE GROUND
+    ]
+  }
+  locked TRUE
+}
+DEF BALL Robot {
+  translation 0 0 0.0208429
+  rotation -0.9999999999999999 6.918127723387872e-11 -1.3182422995955425e-09 0.9670423770661614
+  children [
+    DEF gps GPS {
+    }
+    DEF emitter Emitter {
+    }
+    DEF BALL_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.466667 0
+        metalness 0
+      }
+      geometry Sphere {
+        radius 0.021
+      }
+    }
+  ]
+  boundingObject USE BALL_SHAPE
+  physics Physics {
+    mass 0.5
+  }
+  controller "ball_controller"
+}
+Robot_Y1 {
+  translation -0.4 0.01 0.04
+}
+Robot_Y2 {
+  translation -0.72 0 0.04
+}
+Robot_B1 {
+  translation 0.4 -0.00999995 0.04
+  rotation 0 0 1 3.14159
+}
+Robot_B2 {
+  translation 0.72 -1.59216e-07 0.04
+  rotation 0 0 1 3.14159
+}
+Robot {
+  name "robot(1)"
+  controller "game_supervisor"
+  supervisor TRUE
+}
