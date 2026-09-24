@@ -10,6 +10,12 @@ EXTERNPROTO "../protos/Robot_B2.proto"
 WorldInfo {
   contactProperties [
     ContactProperties {
+      material1 "BALL"
+      coulombFriction [
+        0.5
+      ]
+    }
+    ContactProperties {
       material1 "kicker_pad"
       coulombFriction [
         0.7
@@ -17,9 +23,8 @@ WorldInfo {
       bounce 0.85
     }
     ContactProperties {
-    }
-    ContactProperties {
       material1 "omni_wheel"
+      material2 "field_material"
       coulombFriction [
         0, 1
       ]
@@ -27,8 +32,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.37030761100313025 0.3121591491135098 0.8748879578882568 1.8706858473187533
-  position 0.7888316865321546 -3.3856445323675133 3.6306804847445404
+  orientation -0.4836187048234742 0.4836194001914908 0.7295376783301107 1.8810449483332874
+  position 0.029859552030734975 -2.1227036296735635 5.1159063129090585
 }
 TexturedBackground {
 }
@@ -177,10 +182,21 @@ DEF FIELD Solid {
       ]
     }
   ]
+  contactMaterial "field_material"
   boundingObject Group {
     children [
+      Pose {
+        translation 0 0 -0.01
+        children [
+          Shape {
+            geometry Box {
+              size 2.43 1.82 0.02
+            }
+          }
+        ]
+      }
+      USE WALL1
       USE WALL2
-      USE GOAL_Y1
       USE GOAL_Y1
       USE GOAL_Y2
       USE GOAL_Y3
@@ -189,8 +205,6 @@ DEF FIELD Solid {
       USE GOAL_B3
       USE WALL3
       USE WALL4
-      USE WALL1
-      USE GROUND
     ]
   }
   locked TRUE
