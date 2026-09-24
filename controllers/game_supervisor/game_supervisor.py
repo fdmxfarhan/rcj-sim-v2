@@ -3,8 +3,8 @@ import math
 import random
 
 TIME_STEP = 32
-STUCK_TIMEOUT = 5.0
-MOVE_THRESHOLD = 0.001  # متر
+STUCK_TIMEOUT = 3.0
+MOVE_THRESHOLD = 0.003  # متر
 
 # ۵ نقطه استاندارد برای اسپاون مجدد توپ در صورت گیر کردن
 RESPAWN_POINTS = [
