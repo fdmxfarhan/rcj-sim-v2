@@ -16,7 +16,7 @@ PROTO Robot_B2 [
   field SFVec3f    translation     0 0 0.03
   field SFRotation rotation        0 0 1 0
   field SFString   name            "Robot_B2"
-  field SFString   controller      "Robot_B2"
+  field SFString   controller      "team_blue"
   field MFString   controllerArgs  []
   field SFString   customData      ""
   field SFBool     supervisor      FALSE
@@ -34,6 +34,17 @@ PROTO Robot_B2 [
     supervisor IS supervisor
     synchronization IS synchronization
     children [
+
+      # ---- Kicker Plate Contact Sensor ----
+      TouchSensor {
+        translation 0.09 0 0.015
+        rotation 1 0 0 1.570796
+        name "touch_kicker"
+        type "bumper"              # Returns 1.0 on contact, 0.0 otherwise
+        boundingObject Box {
+          size 0.005 0.05 0.02     # Thin contact area across kicker face
+        }
+      }
 
       # ---- Compass ----
       Compass {
@@ -103,29 +114,12 @@ PROTO Robot_B2 [
         # scale 0.001 0.001 0.001
         children [
           CadShape {
-            url "meshes/robot.dae"
+            url "meshes/black.dae"
           }
         ]
       }
 
-      # Top plate
-      Pose {
-        translation 0 0 0.145
-        children [
-          Shape {
-            appearance PBRAppearance {
-              baseColor 0.15 0.15 0.85
-              roughness 0.25
-              metalness 0.05
-            }
-            geometry Cylinder {
-              height 0.003
-              radius 0.075
-              subdivision 32
-            }
-          }
-        ]
-      }
+
 
 
 
@@ -199,9 +193,14 @@ PROTO Robot_B2 [
         children IS extensionSlot
       }
     ]
-    boundingObject Cylinder {
-      height 0.06
-      radius 0.09
+    boundingObject Pose {
+      translation 0 0 0.055
+      children [
+        Cylinder {
+          height 0.18
+          radius 0.085
+        }
+      ]
     }
     physics Physics {
       density -1

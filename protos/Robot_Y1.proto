@@ -16,7 +16,7 @@ PROTO Robot_Y1 [
   field SFVec3f    translation     0 0 0.03
   field SFRotation rotation        0 0 1 0
   field SFString   name            "Robot_Y1"
-  field SFString   controller      "Robot_Y1"
+  field SFString   controller      "team_yellow"
   field MFString   controllerArgs  []
   field SFString   customData      ""
   field SFBool     supervisor      FALSE
@@ -116,27 +116,7 @@ PROTO Robot_Y1 [
         # scale 0.001 0.001 0.001
         children [
           CadShape {
-            url "meshes/robot.dae"
-          }
-        ]
-      }
-
-      
-      # Top plate
-      Pose {
-        translation 0 0 0.145
-        children [
-          Shape {
-            appearance PBRAppearance {
-              baseColor 1 1 0
-              roughness 0.25
-              metalness 0.05
-            }
-            geometry Cylinder {
-              height 0.003
-              radius 0.075
-              subdivision 32
-            }
+            url "meshes/white.dae"
           }
         ]
       }

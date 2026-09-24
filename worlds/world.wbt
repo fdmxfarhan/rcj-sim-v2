@@ -67,7 +67,7 @@ DEF FIELD Solid {
       children [
         Shape {
           appearance DEF Y_COLOR PBRAppearance {
-            baseColor 0.737255 0.686275 0
+            baseColor 0 0 1
             metalness 0
           }
           geometry Box {
@@ -103,7 +103,7 @@ DEF FIELD Solid {
       children [
         Shape {
           appearance DEF B_COLOR PBRAppearance {
-            baseColor 0 0 0.498039
+            baseColor 0.941176 0.941176 0
             metalness 0
           }
           geometry Box {
@@ -219,17 +219,17 @@ DEF BALL Robot {
   }
   controller "ball_controller"
 }
-Robot_Y1 {
+DEF Y1 Robot_Y1 {
   translation -0.4 0.01 0.04
 }
-Robot_Y2 {
+DEF Y2 Robot_Y2 {
   translation -0.72 0 0.04
 }
-Robot_B1 {
+DEF B1 Robot_B1 {
   translation 0.4 -0.00999995 0.04
   rotation 0 0 1 3.14159
 }
-Robot_B2 {
+DEF B2 Robot_B2 {
   translation 0.72 -1.59216e-07 0.04
   rotation 0 0 1 3.14159
 }
