@@ -4,7 +4,7 @@ import random
 
 TIME_STEP = 32
 STUCK_TIMEOUT = 6.0
-MOVE_THRESHOLD = 0.004  # متر
+MOVE_THRESHOLD = 0.001  # متر
 
 # ۵ نقطه استاندارد برای اسپاون مجدد توپ در صورت گیر کردن
 RESPAWN_POINTS = [
@@ -64,7 +64,15 @@ PENALTY_POSITIONS = {
     "B1": [ 1.5, -0.15, ROBOT_Z ],
     "B2": [ 1.5, 0.15, ROBOT_Z ]
 }
+PENALTY_ROTATIONS = {
+    # Yellow goal is at +X, so face toward -X
+    "Y1": [0, 0, 1, math.pi],
+    "Y2": [0, 0, 1, math.pi],
 
+    # Blue goal is at -X, so face toward +X
+    "B1": [0, 0, 1, 0],
+    "B2": [0, 0, 1, 0],
+}
 # Neutral positions available after a wall penalty.
 # All of them are safely inside the field.
 NEUTRAL_POSITIONS = [
@@ -76,6 +84,12 @@ NEUTRAL_POSITIONS = [
     [ 0.75,  0.55, ROBOT_Z],
 ]
 NEUTRAL_OCCUPANCY_DISTANCE = 0.25
+BALL_SAFE_Z = 0.02
+
+# ---- Match Timer ----
+MATCH_TIME = 10.0 * 60.0   # 10 minutes in seconds
+match_start_time = 0.0
+match_finished = False
 
 # ---- راه‌اندازی سوپروایزر ----
 robot = Supervisor()
@@ -161,6 +175,19 @@ def get_wall_touch(robot_pos):
 
     return None
 
+def check_ball_below_field(position):
+    """
+    Check whether the ball has fallen below the field.
+
+    If it has, return a corrected position with Z = 0.02.
+    """
+
+    x, y, z = position
+
+    if z < -BALL_SAFE_Z:
+        return True, [x, y, BALL_SAFE_Z]
+
+    return False, position
 
 def get_penalty_position(robot_pos):
     """
@@ -176,11 +203,13 @@ def get_penalty_position(robot_pos):
 
     return PENALTY_POSITIONS[wall][:]
 
-
 def start_wall_penalty(robot_name):
     """
     Send a robot behind its own team's goal and start
     a 60-second wall penalty.
+
+    The robot's rotation is also reset so that it faces
+    toward the field.
     """
 
     if robot_name not in robots_data:
@@ -193,25 +222,40 @@ def start_wall_penalty(robot_name):
     r_info = robots_data[robot_name]
 
     penalty_pos = PENALTY_POSITIONS[robot_name][:]
+    penalty_rot = PENALTY_ROTATIONS[robot_name][:]
 
     now = robot.getTime()
 
+    # ---------------------------------------------
     # Move robot behind its team's goal
+    # ---------------------------------------------
     r_info["translation"].setSFVec3f(penalty_pos)
 
-    # Stop/reset physics
+    # ---------------------------------------------
+    # Reset rotation
+    # ---------------------------------------------
+    if r_info["rotation"]:
+        r_info["rotation"].setSFRotation(penalty_rot)
+
+    # ---------------------------------------------
+    # Reset physics
+    # ---------------------------------------------
     r_info["node"].resetPhysics()
 
+    # ---------------------------------------------
     # Store penalty state
+    # ---------------------------------------------
     wall_penalties[robot_name]["active"] = True
-    wall_penalties[robot_name]["until"] = now + WALL_PENALTY_TIME
+    wall_penalties[robot_name]["until"] = (
+        now + WALL_PENALTY_TIME
+    )
     wall_penalties[robot_name]["penalty_position"] = penalty_pos
 
     team = "YELLOW" if robot_name.startswith("Y") else "BLUE"
 
     print(
         f"[WALL PENALTY] {robot_name} ({team}) "
-        f"must stay behind its goal for "
+        f"sent behind goal for "
         f"{WALL_PENALTY_TIME:.0f} seconds."
     )
 
@@ -514,23 +558,129 @@ def respawn_robots(kickoff_team):
         f"{kickoff_team} will kick off."
     )
 
-def update_scoreboard(status_text="", status_color=0x00FF66):
+def update_match_timer():
     """
-    نمایش متن‌های چند رنگ روی پنجره Webots
+    Update the 10-minute match countdown.
     """
-    robot.setLabel(10, f"YELLOW: {score_yellow}", 0.32, 0.03, 0.10, 0xFFFF00, 0.0, "Arial")
-    robot.setLabel(11, " | ", 0.49, 0.03, 0.10, 0xFFFFFF, 0.0, "Arial")
-    robot.setLabel(12, f"{score_blue} :BLUE", 0.53, 0.03, 0.10, 0x3399FF, 0.0, "Arial")
 
-    if status_text:
-        robot.setLabel(13, status_text, 0.41, 0.09, 0.11, status_color, 0.0, "Arial")
+    global match_finished
+
+    if match_finished:
+        remaining = 0.0
     else:
-        robot.setLabel(13, "", 0.41, 0.09, 0.11, 0x000000, 0.0, "Arial")
+        elapsed = robot.getTime() - match_start_time
+        remaining = max(0.0, MATCH_TIME - elapsed)
+
+    minutes = int(remaining // 60)
+    seconds = int(remaining % 60)
+
+    timer_text = f"{minutes:02d}:{seconds:02d}"
+
+    # Display timer at the top center
+    robot.setLabel(
+        14,
+        timer_text,
+        0.47,
+        0.01,
+        0.12,
+        0xFFFFFF,
+        0.0,
+        "Arial"
+    )
+
+    # Match finished
+    if remaining <= 0.0 and not match_finished:
+        match_finished = True
+
+        print("[MATCH] 10 minutes reached. Match finished.")
+
+        # Make sure display shows exactly 00:00
+        robot.setLabel(
+            14,
+            "00:00",
+            0.47,
+            0.01,
+            0.12,
+            0xFFFFFF,
+            0.0,
+            "Arial"
+        )
+
+        # Pause Webots simulation
+        robot.simulationSetMode(
+            Supervisor.SIMULATION_MODE_PAUSE
+        )
+
+def update_scoreboard(status_text="", status_color=0x00FF66):
+    # Yellow score - top left
+    robot.setLabel(
+        10,
+        f"YELLOW: {score_yellow}",
+        0.02, 0.01, 0.10,
+        0xFFFF00,
+        0.0,
+        "Arial"
+    )
+
+    # Blue score - top right
+    robot.setLabel(
+        11,
+        f"{score_blue} :BLUE",
+        0.85, 0.01, 0.10,
+        0x3399FF,
+        0.0,
+        "Arial"
+    )
+
+    # Status message - center
+    if status_text:
+        robot.setLabel(
+            13,
+            status_text,
+            0.41, 0.5, 0.11,
+            status_color,
+            0.0,
+            "Arial"
+        )
+    else:
+        robot.setLabel(
+            13,
+            "",
+            0.41, 0.5, 0.11,
+            0x000000,
+            0.0,
+            "Arial"
+        )
 
 update_scoreboard()
+match_start_time = robot.getTime()
+update_match_timer()
 
 while robot.step(TIME_STEP) != -1:
     current_position = ball_translation.getSFVec3f()
+    
+    update_match_timer()
+
+    ball_below_field, corrected_position = check_ball_below_field(
+        current_position
+    )
+
+    if ball_below_field:
+        ball_translation.setSFVec3f(corrected_position)
+        ball_node.resetPhysics()
+
+        current_position = corrected_position[:]
+
+        last_position = corrected_position[:]
+        stuck_time = 0.0
+
+        print(
+            f"[BALL SAFETY] Ball was below field. "
+            f"Returned to Z={BALL_SAFE_Z:.2f}"
+        )
+
+        continue
+    
     update_wall_penalties(current_position)
 
     # ۱. مدیریت زمان بعد از گل (مکث و نمایش اعلان)

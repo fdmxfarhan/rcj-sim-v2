@@ -14,6 +14,15 @@ def run_robot(rcj):
         relative_angle_rad = abs_angle - robot_heading
         relative_angle_deg = math.degrees(relative_angle_rad)
         shift = max(-60, min(relative_angle_deg * 0.8, 60))
-        moveAngle(rcj, relative_angle_deg + shift, 20, robot_heading)
+        if ball_pos[1] > 0.8:
+            moveTo(rcj, max(-1, min(ball_pos[0], 1)), 0.7, 0)
+        elif ball_pos[1] < -0.8:
+            moveTo(rcj, max(-1, min(ball_pos[0], 1)), -0.7, 0)
+        elif ball_pos[0] > 1.06:
+            moveTo(rcj, 1.0, max(-0.8, min(ball_pos[1], 0.8)), 0)
+        elif ball_pos[0] < -1.06:
+            moveTo(rcj, -1.0, max(-0.8, min(ball_pos[1], 0.8)), 0)
+        else:
+            moveAngle(rcj, relative_angle_deg + shift, 20, robot_heading)
     else:
         rcj.motor(0, 0, 0, 0)

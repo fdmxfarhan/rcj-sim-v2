@@ -9,6 +9,11 @@ def run_robot(rcj):
     ball_pos = rcj.get_ball_position()
     
     if ball_pos:
-        moveTo(rcj, -0.7, ball_pos[1])
+        if ball_pos[1] > 0.4:
+            moveTo(rcj, -0.7, 0.4)
+        elif ball_pos[1] < -0.4:
+            moveTo(rcj, -0.7, -0.4)
+        else:
+            moveTo(rcj, -0.7, ball_pos[1])
     else:
         moveTo(rcj, -0.7, 0)
