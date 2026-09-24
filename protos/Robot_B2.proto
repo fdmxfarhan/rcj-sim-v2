@@ -34,19 +34,6 @@ PROTO Robot_B2 [
     supervisor IS supervisor
     synchronization IS synchronization
     children [
-      # ---- Body ----
-      Shape {
-        appearance PBRAppearance {
-          baseColor 0.15 0.15 0.85
-          roughness 0.6
-          metalness 0
-        }
-        geometry Cylinder {
-          height 0.06
-          radius 0.09
-          subdivision 32
-        }
-      }
 
       # ---- Compass ----
       Compass {
@@ -109,9 +96,21 @@ PROTO Robot_B2 [
 
       # ---- Visual Details Only ----
 
+      # ---- 3D Body CAD Assembly ----
+      Pose {
+        translation 0 0 -0.03
+        rotation 0.577351 0.577349 0.577351 2.0944
+        # scale 0.001 0.001 0.001
+        children [
+          CadShape {
+            url "meshes/robot.dae"
+          }
+        ]
+      }
+
       # Top plate
       Pose {
-        translation 0 0 0.12
+        translation 0 0 0.145
         children [
           Shape {
             appearance PBRAppearance {
@@ -122,26 +121,6 @@ PROTO Robot_B2 [
             geometry Cylinder {
               height 0.003
               radius 0.075
-              subdivision 32
-            }
-          }
-        ]
-      }
-
-      # Team-color top ring
-      Pose {
-        translation 0 0 0.0815
-        children [
-          Shape {
-            appearance PBRAppearance {
-              baseColor 0 0 0
-              roughness 0.35
-              metalness 0.05
-              transparency 0.1
-            }
-            geometry Cylinder {
-              height 0.1
-              radius 0.05
               subdivision 32
             }
           }
@@ -194,19 +173,7 @@ PROTO Robot_B2 [
             # so the cylinder stands vertically on its rolling edge.
             Pose {
               rotation 1 0 0 1.570796
-              children [
-                Shape {
-                  appearance PBRAppearance {
-                    baseColor 0.1 0.1 0.1
-                    roughness 0.8
-                  }
-                  geometry Cylinder {
-                    height %<= wheelWidth >%
-                    radius %<= wheelRadius >%
-                    subdivision 24
-                  }
-                }
-              ]
+              children []
             }
           ]
           name "%<= wheelNames[i] >%"
