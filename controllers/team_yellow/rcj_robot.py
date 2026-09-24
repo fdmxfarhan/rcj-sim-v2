@@ -37,13 +37,86 @@ class RCJRobot:
         # کش برای نگه‌داشتن آخرین موقعیت توپ
         self.last_ball_pos = None
 
-        # دسترسی به نود توپ برای شوت زدن مجازی
+        # دسترسی به نود توپ برای شوت زدن و دریبلر مجازی
         self.ball_node = None
         if hasattr(self.robot, "getFromDef"):
             self.ball_node = self.robot.getFromDef("BALL")
 
         # متغیر وضعیت برای جلوگیری از شلیک متوالی در یک برخورد
         self.has_kicked = False
+
+        # متغیر وضعیت دریبلر مجازی
+        self.dribbler_active = False
+
+    def set_dribbler(self, state: bool):
+        """روشن یا خاموش کردن دریبلر مجازی"""
+        self.dribbler_active = state
+
+    def apply_dribbler(self, force=1.0):
+        """
+        اعمال نیرو به توپ برای کشیدن آن دقیقاً به سمت مرکز ربات
+        هنگامی که دریبلر روشن است و توپ در محوطه کیکر قرار دارد.
+        """
+        if self.dribbler_active and self.ball_node is not None:
+            if self.is_ball_in_kicker():
+                robot_pos = self.get_position()
+                ball_pos = self.get_ball_position()
+
+                if robot_pos is None or ball_pos is None:
+                    returnf
+
+                # بردار از مرکز توپ به سمت مرکز ربات
+                dx = robot_pos[0] - ball_pos[0]
+                dy = robot_pos[1] - ball_pos[1]
+                distance = math.hypot(dx, dy)
+
+                if distance > 0.001:
+                    # بردار واحد به سمت مرکز ربات ضرب‌در شدت نیرو
+                    fx = (dx / distance) * force
+                    fy = (dy / distance) * force
+
+                    # تبدیل بردار به سیستم مختصات جهانی Webots (Global) برای تیم آبی
+                    if self.is_blue_team:
+                        fx = -fx
+                        fy = -fy
+
+                    # اعمال نیرو به مرکز توپ
+                    self.ball_node.addForce([fx, fy, 0.0], False)
+
+    def apply_dribbler_pd(self, hold_dist=0.075, kp=100.0, kd=10.0):
+        """
+        نگه‌داشتن پایدار توپ با فیدبک موقعیت و سرعت
+        - hold_dist: فاصله نقطه هدف توپ از مرکز ربات (متر)
+        """
+        if not (self.dribbler_active and self.ball_node and self.is_ball_in_kicker()):
+            return
+
+        # زاویه فیزیکی واقعی ربات در جهان
+        raw_heading = self.get_raw_heading()
+        
+        # موقعیت جهانی واقعی ربات
+        if self.gps:
+            rx, ry = self.gps.getValues()[0], self.gps.getValues()[1]
+        else:
+            return
+
+        # نقطه هدف قرارگیری توپ در جلوی ربات (در فضای سراسری Webots)
+        target_x = rx + math.cos(raw_heading) * hold_dist
+        target_y = ry + math.sin(raw_heading) * hold_dist
+
+        # موقعیت و سرعت واقعی توپ
+        ball_pos = self.ball_node.getPosition()
+        ball_vel = self.ball_node.getVelocity()  # [vx, vy, vz, wx, wy, wz]
+
+        # خطای موقعیت
+        err_x = target_x - ball_pos[0]
+        err_y = target_y - ball_pos[1]
+
+        # نیروی فنر + دمپر برای جلوگیری از لرزش و پرتاب
+        fx = kp * err_x - kd * ball_vel[0]
+        fy = kp * err_y - kd * ball_vel[1]
+
+        self.ball_node.addForce([fx, fy, 0.0], False)
 
     def get_position(self):
         if self.gps:
@@ -120,7 +193,8 @@ class RCJRobot:
     def is_ball_touched(self):
         return self.is_ball_in_kicker()
 
-    def kick(self, force=30.0):
+    def kick(self):
+        force = 20.0
         if not self.is_ball_in_kicker():
             self.has_kicked = False
             return False
@@ -145,7 +219,6 @@ class RCJRobot:
             return True
 
         return False
-
         
     def motor(self, v1, v2, v3, v4):
         speeds = [v1, v2, v3, v4]
@@ -160,4 +233,8 @@ class RCJRobot:
         # بررسی موقعیت برای ریست کردن خودکار قفل شوت پس از دور شدن توپ
         if not self.is_ball_in_kicker():
             self.has_kicked = False
+
+        # اعمال کشش دریبلر در صورت فعال بودن
+        self.apply_dribbler_pd()
+
         return self.robot.step(self.time_step) != -1

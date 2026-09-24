@@ -16,7 +16,7 @@ def run_robot(rcj):
         abs_angle = math.atan2(dy, dx)
         relative_angle_rad = abs_angle - robot_heading
         relative_angle_deg = math.degrees(relative_angle_rad)
-        shift = max(-60, min(relative_angle_deg * 0.8, 60))
+        shift = max(-60, min(relative_angle_deg * 1.5, 60))
         if ball_pos[1] > 0.8:
             moveTo(rcj, max(-1, min(ball_pos[0], 1)), 0.4, 0)
         elif ball_pos[1] < -0.8:

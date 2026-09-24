@@ -9,14 +9,16 @@ def run_robot(rcj):
     ball_in_kicker = rcj.is_ball_touched()
 
     if ball_in_kicker:
-        rcj.kick()
-    if ball_pos:
-        dx = ball_pos[0] - robot_pos[0]
-        dy = ball_pos[1] - robot_pos[1]
-        abs_angle = math.atan2(dy, dx)
-        relative_angle_rad = abs_angle - robot_heading
-        relative_angle_deg = math.degrees(relative_angle_rad)
-        shift = max(-60, min(relative_angle_deg * 0.8, 60))
+        ball_angle = angleBetween(rcj, [1.1, 0], robot_pos)
+        if abs(ball_angle) < 4:
+            rcj.set_dribbler(False)
+            rcj.kick()
+        else:
+            rcj.set_dribbler(True)
+            moveXY(rcj, 5, 0, -ball_angle/2)
+    elif ball_pos:
+        ball_angle = angleBetween(rcj, ball_pos, robot_pos)
+        shift = max(-60, min(ball_angle * 1.5, 60))
         if ball_pos[1] > 0.8:
             moveTo(rcj, max(-1, min(ball_pos[0], 1)), 0.4, 0)
         elif ball_pos[1] < -0.8:
@@ -26,6 +28,6 @@ def run_robot(rcj):
         elif ball_pos[0] < -1.06:
             moveTo(rcj, -0.8, max(-0.8, min(ball_pos[1], 0.8)), 0)
         else:
-            moveAngle(rcj, relative_angle_deg + shift, 5, robot_heading)
+            moveAngle(rcj, ball_angle + shift, 20, robot_heading)
     else:
         rcj.motor(0, 0, 0, 0)

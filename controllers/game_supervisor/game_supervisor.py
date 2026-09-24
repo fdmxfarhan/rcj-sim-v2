@@ -3,7 +3,7 @@ import math
 import random
 
 TIME_STEP = 32
-STUCK_TIMEOUT = 6.0
+STUCK_TIMEOUT = 5.0
 MOVE_THRESHOLD = 0.001  # متر
 
 # ۵ نقطه استاندارد برای اسپاون مجدد توپ در صورت گیر کردن
@@ -253,11 +253,11 @@ def start_wall_penalty(robot_name):
 
     team = "YELLOW" if robot_name.startswith("Y") else "BLUE"
 
-    print(
-        f"[WALL PENALTY] {robot_name} ({team}) "
-        f"sent behind goal for "
-        f"{WALL_PENALTY_TIME:.0f} seconds."
-    )
+    # print(
+    #     f"[WALL PENALTY] {robot_name} ({team}) "
+    #     f"sent behind goal for "
+    #     f"{WALL_PENALTY_TIME:.0f} seconds."
+    # )
 
 def maintain_wall_penalty(robot_name):
     """
@@ -346,29 +346,29 @@ def find_farthest_neutral_position(ball_position, returning_robot_name):
         # This position is free
         # -----------------------------------------
         if not occupied:
-            print(
-                f"[NEUTRAL POSITION] "
-                f"{returning_robot_name} -> "
-                f"{position[:2]} "
-                f"(distance from ball: "
-                f"{candidate['distance']:.3f}m)"
-            )
+            # print(
+            #     f"[NEUTRAL POSITION] "
+            #     f"{returning_robot_name} -> "
+            #     f"{position[:2]} "
+            #     f"(distance from ball: "
+            #     f"{candidate['distance']:.3f}m)"
+            # )
 
             return position[:]
 
-        print(
-            f"[NEUTRAL POSITION] "
-            f"{position[:2]} occupied, "
-            f"trying next farthest position."
-        )
+        # print(
+        #     f"[NEUTRAL POSITION] "
+        #     f"{position[:2]} occupied, "
+        #     f"trying next farthest position."
+        # )
 
     # ---------------------------------------------
     # No free neutral position
     # ---------------------------------------------
-    print(
-        f"[WARNING] No free neutral position for "
-        f"{returning_robot_name}!"
-    )
+    # print(
+    #     f"[WARNING] No free neutral position for "
+    #     f"{returning_robot_name}!"
+    # )
 
     return None
 
@@ -416,10 +416,10 @@ def release_wall_penalty(robot_name, ball_position):
     penalty["until"] = 0.0
     penalty["penalty_position"] = None
 
-    print(
-        f"[WALL PENALTY END] {robot_name} returned "
-        f"to {target_position[:2]}"
-    )
+    # print(
+    #     f"[WALL PENALTY END] {robot_name} returned "
+    #     f"to {target_position[:2]}"
+    # )
 
 def update_wall_penalties(ball_position):
     """
@@ -553,10 +553,10 @@ def respawn_robots(kickoff_team):
         # ---------------------------------------------
         r_info["node"].resetPhysics()
 
-    print(
-        f"[KICKOFF] All robots returned to field. "
-        f"{kickoff_team} will kick off."
-    )
+    # print(
+    #     f"[KICKOFF] All robots returned to field. "
+    #     f"{kickoff_team} will kick off."
+    # )
 
 def update_match_timer():
     """
@@ -592,7 +592,7 @@ def update_match_timer():
     if remaining <= 0.0 and not match_finished:
         match_finished = True
 
-        print("[MATCH] 10 minutes reached. Match finished.")
+        # print("[MATCH] 10 minutes reached. Match finished.")
 
         # Make sure display shows exactly 00:00
         robot.setLabel(
@@ -674,10 +674,10 @@ while robot.step(TIME_STEP) != -1:
         last_position = corrected_position[:]
         stuck_time = 0.0
 
-        print(
-            f"[BALL SAFETY] Ball was below field. "
-            f"Returned to Z={BALL_SAFE_Z:.2f}"
-        )
+        # print(
+        #     f"[BALL SAFETY] Ball was below field. "
+        #     f"Returned to Z={BALL_SAFE_Z:.2f}"
+        # )
 
         continue
     
