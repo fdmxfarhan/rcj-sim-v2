@@ -61,7 +61,7 @@ class RCJRobot:
                 heading += 180
                 if heading > 180:
                     heading -= 360
-            return heading
+            return math.radians(heading)
         return 0.0
 
     def get_ball_position(self):
@@ -89,28 +89,6 @@ class RCJRobot:
                 if i % 2 == 1: 
                     val = -val 
                 self.motors[i].setVelocity(val)
-
-    def moveXY(self, vx, vy, w=0):
-        v1 = vx + vy + w
-        v2 = -vx + vy + w
-        v3 = -vx - vy + w
-        v4 = vx - vy + w
-        self.motor(v1, v2, v3, v4)
-
-    def moveAngle(self, angle_deg, speed):
-        rad = math.radians(angle_deg)
-        vx = -speed * math.sin(rad)
-        vy = speed * math.cos(rad)
-        self.moveXY(vx, vy, 0)
-
-    def moveTo(self, target_x, target_y, target_w=0):
-        pos = self.get_position()
-        heading = math.radians(self.get_heading())
-        
-        err_x = (pos[0] - target_x) * 50
-        err_y = (pos[1] - target_y) * 50
-        err_w = (heading - target_w) * 20
-        self.moveXY(err_y, -err_x, err_w)
 
     def step(self):
         return self.robot.step(self.time_step) != -1

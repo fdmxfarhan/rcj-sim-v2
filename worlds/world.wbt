@@ -33,7 +33,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.4836187048234742 0.4836194001914908 0.7295376783301107 1.8810449483332874
-  position 0.029859552030734975 -2.1227036296735635 5.1159063129090585
+  position 0.041500336435373035 -1.8819884222314696 4.616319618752393
 }
 TexturedBackground {
 }
@@ -235,17 +235,23 @@ DEF BALL Robot {
 }
 DEF Y1 Robot_Y1 {
   translation -0.4 0.01 0.04
+  supervisor TRUE
 }
 DEF Y2 Robot_Y2 {
+  hidden rotation_9 -1.745369652598643e-11 -4.214090929218648e-11 -1 0.7853981633974345
+  hidden rotation_12 -1.960127471848787e-11 4.7327481069791134e-11 0.9999999999999999 0.7853981633974252
   translation -0.72 0 0.04
+  supervisor TRUE
 }
 DEF B1 Robot_B1 {
   translation 0.4 -0.00999995 0.04
   rotation 0 0 1 3.14159
+  supervisor TRUE
 }
 DEF B2 Robot_B2 {
   translation 0.72 -1.59216e-07 0.04
   rotation 0 0 1 3.14159
+  supervisor TRUE
 }
 Robot {
   name "robot(1)"

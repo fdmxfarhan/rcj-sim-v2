@@ -121,10 +121,6 @@ PROTO Robot_B1 [
 
 
 
-      
-
-
-
       %<
         // --- configurable constants ---
         const wheelRadius = 0.03;

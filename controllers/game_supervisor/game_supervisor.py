@@ -4,7 +4,7 @@ import random
 
 TIME_STEP = 32
 STUCK_TIMEOUT = 6.0
-MOVE_THRESHOLD = 0.001  # متر
+MOVE_THRESHOLD = 0.004  # متر
 
 # ۵ نقطه استاندارد برای اسپاون مجدد توپ در صورت گیر کردن
 RESPAWN_POINTS = [
@@ -51,6 +51,41 @@ KICKOFF_POSITIONS = {
         "B2": {"pos": [ 0.72,  0.00, 0.04], "rot": [0, 0, 1, math.pi]},   # مهاجم آبی (عقب‌تر در نیمه خود)
     }
 }
+
+
+# ---- راه‌اندازی سوپروایزر ----
+robot = Supervisor()
+
+# توپ
+ball_node = robot.getFromDef("BALL")
+if ball_node is None:
+    raise RuntimeError("Ball node with DEF 'BALL' not found.")
+ball_translation = ball_node.getField("translation")
+last_position = ball_translation.getSFVec3f()
+stuck_time = 0.0
+
+# ربات‌ها (Y1, Y2, B1, B2)
+# مطمئن شوید در درخت صحنه (Scene Tree) فیلد DEF ربات‌ها دقیقاً یکی از این نام‌ها باشد
+robot_defs = ["Y1", "Y2", "B1", "B2"]
+robots_data = {}
+
+for r_def in robot_defs:
+    node = robot.getFromDef(r_def)
+    if node is not None:
+        robots_data[r_def] = {
+            "node": node,
+            "translation": node.getField("translation"),
+            "rotation": node.getField("rotation")
+        }
+    else:
+        print(f"[Warning] Robot with DEF '{r_def}' not found in WorldInfo/Scene Tree.")
+
+
+
+# متغیرهای امتیاز و وضعیت
+score_yellow = 0
+score_blue = 0
+goal_cooldown = 0  # فریم‌های مکث پس از گل
 
 
 def distance2d(a, b):
@@ -101,34 +136,6 @@ def check_out_of_bounds(pos):
     return is_out, [new_x, new_y, BALL_Z]
 
 
-# ---- راه‌اندازی سوپروایزر ----
-robot = Supervisor()
-
-# توپ
-ball_node = robot.getFromDef("BALL")
-if ball_node is None:
-    raise RuntimeError("Ball node with DEF 'BALL' not found.")
-ball_translation = ball_node.getField("translation")
-last_position = ball_translation.getSFVec3f()
-stuck_time = 0.0
-
-# ربات‌ها (Y1, Y2, B1, B2)
-# مطمئن شوید در درخت صحنه (Scene Tree) فیلد DEF ربات‌ها دقیقاً یکی از این نام‌ها باشد
-robot_defs = ["Y1", "Y2", "B1", "B2"]
-robots_data = {}
-
-for r_def in robot_defs:
-    node = robot.getFromDef(r_def)
-    if node is not None:
-        robots_data[r_def] = {
-            "node": node,
-            "translation": node.getField("translation"),
-            "rotation": node.getField("rotation")
-        }
-    else:
-        print(f"[Warning] Robot with DEF '{r_def}' not found in WorldInfo/Scene Tree.")
-
-
 def respawn_robots(kickoff_team):
     """
     ریست کردن موقعیت و فیزیک ۴ ربات براساس تیمی که گل خورده است
@@ -151,10 +158,6 @@ def respawn_robots(kickoff_team):
             r_info["node"].resetPhysics()
 
 
-# متغیرهای امتیاز و وضعیت
-score_yellow = 0
-score_blue = 0
-goal_cooldown = 0  # فریم‌های مکث پس از گل
 
 def update_scoreboard(status_text="", status_color=0x00FF66):
     """
@@ -189,12 +192,12 @@ while robot.step(TIME_STEP) != -1:
         if scoring_team == "YELLOW":
             score_yellow += 1
             kickoff_team = "BLUE"  # زرد گل زده -> آبی شروع‌کننده است
-            print(f"[GOAL!] Team YELLOW scored! ({score_yellow} - {score_blue})")
+            # print(f"[GOAL!] Team YELLOW scored! ({score_yellow} - {score_blue})")
             update_scoreboard("GOAL FOR YELLOW!", 0xFFFF00)
         else:
             score_blue += 1
             kickoff_team = "YELLOW"  # آبی گل زده -> زرد شروع‌کننده است
-            print(f"[GOAL!] Team BLUE scored! ({score_yellow} - {score_blue})")
+            # print(f"[GOAL!] Team BLUE scored! ({score_yellow} - {score_blue})")
             update_scoreboard("GOAL FOR BLUE!", 0x3399FF)
 
         # ریست توپ به مرکز زمین
@@ -217,7 +220,7 @@ while robot.step(TIME_STEP) != -1:
         ball_node.resetPhysics()
         last_position = respawn_pos[:]
         stuck_time = 0.0
-        print(f"[Out of Bounds] Ball returned: {respawn_pos[:2]}")
+        # print(f"[Out of Bounds] Ball returned: {respawn_pos[:2]}")
         continue
 
     # ۴. بررسی گیر کردن توپ (Stuck)
@@ -232,9 +235,10 @@ while robot.step(TIME_STEP) != -1:
         ball_translation.setSFVec3f(target)
         ball_node.resetPhysics()
 
-        print(f"[Stuck] Ball respawned: {target}")
+        # print(f"[Stuck] Ball respawned: {target}")
         last_position = target[:]
         stuck_time = 0.0
         continue
 
     last_position = current_position[:]
+    
