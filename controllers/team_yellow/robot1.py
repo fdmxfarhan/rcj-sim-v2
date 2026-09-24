@@ -15,7 +15,7 @@ def run_robot(rcj):
             rcj.kick()
         else:
             rcj.set_dribbler(True)
-            moveXY(rcj, 5, 0, -ball_angle/2)
+            moveXY(rcj, 0, 0, -ball_angle/2)
     elif ball_pos:
         ball_angle = angleBetween(rcj, ball_pos, robot_pos)
         shift = max(-60, min(ball_angle * 1.5, 60))
