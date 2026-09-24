@@ -35,17 +35,6 @@ PROTO Robot_B1 [
     synchronization IS synchronization
     children [
       
-      # ---- Kicker Plate Contact Sensor ----
-      TouchSensor {
-        translation 0.09 0 0.015
-        rotation 1 0 0 1.570796
-        name "touch_kicker"
-        type "bumper"              # Returns 1.0 on contact, 0.0 otherwise
-        boundingObject Box {
-          size 0.005 0.05 0.02     # Thin contact area across kicker face
-        }
-      }
-
       # ---- Compass ----
       Compass {
         translation 0 0 0.03
