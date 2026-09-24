@@ -39,8 +39,7 @@ PROTO Robot_Y1 [
 
       # ---- Kicker Plate Contact Sensor ----
       TouchSensor {
-        translation 0.09 0 0.015
-        rotation 1 0 0 1.570796
+        translation 0.09 0 -0.015
         name "touch_kicker"
         type "bumper"              # Returns 1.0 on contact, 0.0 otherwise
         boundingObject Box {

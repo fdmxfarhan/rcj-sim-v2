@@ -1,14 +1,12 @@
-from controller import Robot
+from controller import Supervisor  # به جای Robot
 from rcj_robot import RCJRobot
 import robot1
 import robot2
 
 def main():
-    webot_robot = Robot()
+    webot_robot = Supervisor()  # ایجاد آبجکت Supervisor
     rcj = RCJRobot(webot_robot)
     
-    # تشخیص اینکه این کنترلر روی کدام روبات در حال اجراست
-    # فرض بر این است که نام روبات‌ها در وباتس Robot_Y1 و Robot_Y2 است
     robot_name = rcj.name
     
     while rcj.step():

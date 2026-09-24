@@ -6,7 +6,10 @@ def run_robot(rcj):
     ball_pos = rcj.get_ball_position()
     robot_heading = rcj.get_heading()
     robot_pos = rcj.get_position()
+    ball_in_kicker = rcj.is_ball_touched()
 
+    if ball_in_kicker:
+        rcj.kick()
     if ball_pos:
         dx = ball_pos[0] - robot_pos[0]
         dy = ball_pos[1] - robot_pos[1]
@@ -15,14 +18,14 @@ def run_robot(rcj):
         relative_angle_deg = math.degrees(relative_angle_rad)
         shift = max(-60, min(relative_angle_deg * 0.8, 60))
         if ball_pos[1] > 0.8:
-            moveTo(rcj, max(-1, min(ball_pos[0], 1)), 0.7, 0)
+            moveTo(rcj, max(-1, min(ball_pos[0], 1)), 0.4, 0)
         elif ball_pos[1] < -0.8:
-            moveTo(rcj, max(-1, min(ball_pos[0], 1)), -0.7, 0)
+            moveTo(rcj, max(-1, min(ball_pos[0], 1)), -0.4, 0)
         elif ball_pos[0] > 1.06:
-            moveTo(rcj, 1.0, max(-0.8, min(ball_pos[1], 0.8)), 0)
+            moveTo(rcj, 0.8, max(-0.8, min(ball_pos[1], 0.8)), 0)
         elif ball_pos[0] < -1.06:
-            moveTo(rcj, -1.0, max(-0.8, min(ball_pos[1], 0.8)), 0)
+            moveTo(rcj, -0.8, max(-0.8, min(ball_pos[1], 0.8)), 0)
         else:
-            moveAngle(rcj, relative_angle_deg + shift, 20, robot_heading)
+            moveAngle(rcj, relative_angle_deg + shift, 5, robot_heading)
     else:
         rcj.motor(0, 0, 0, 0)
