@@ -10,6 +10,13 @@ EXTERNPROTO "../protos/Robot_B2.proto"
 WorldInfo {
   contactProperties [
     ContactProperties {
+      material1 "kicker_pad"
+      coulombFriction [
+        0.7
+      ]
+      bounce 0.85
+    }
+    ContactProperties {
     }
     ContactProperties {
       material1 "omni_wheel"
@@ -21,7 +28,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.37030761100313025 0.3121591491135098 0.8748879578882568 1.8706858473187533
-  position 0.8186595307434125 -3.4390127526447207 3.5747839146753084
+  position 0.7888316865321546 -3.3856445323675133 3.6306804847445404
 }
 TexturedBackground {
 }

@@ -91,7 +91,7 @@ def main():
             ball_detected = True
             receiver.nextPacket()  # Go to next packet if any
             
-        if ball_detected:
+        if False: # ball_detected:
             # 3. Calculate distance
             dx = ball_x - self_x
             dy = ball_y - self_y

@@ -56,6 +56,12 @@ class OmniDrive:
         y = v * math.cos(math.radians(a))
         self.move(x, y, 0)
 
+    def moveTo(self, x, y, w, robot_x, robot_y, robot_angle):
+        error_x = (robot_x - x) * 50
+        error_y = (robot_y - y) * 50
+        error_w = (robot_angle - w) * 20
+        self.move(error_y, -error_x, error_w)
+
 def main():
     robot = Robot()
     drive = OmniDrive(robot)
@@ -70,6 +76,10 @@ def main():
     receiver = robot.getDevice("receiver")
     receiver.enable(TIME_STEP)
 
+    ball_sensor = robot.getDevice("touch_kicker")
+    ball_sensor.enable(TIME_STEP)
+
+
     while robot.step(TIME_STEP) != -1:
         # Move forward slowly
         
@@ -81,6 +91,9 @@ def main():
         compass_val = compass.getValues()
         # Compute heading angle: 0 rad is pointing along +X (forward) in Webots coordinate frame
         self_heading = math.atan2(compass_val[0], compass_val[1])
+        kicker_sens = ball_sensor.getValue()
+        print(kicker_sens)
+
         drive.setHeading(math.degrees(self_heading))
         # 2. Check if a packet from the ball has arrived
         ball_detected = False
@@ -105,8 +118,18 @@ def main():
             relative_angle_rad = (relative_angle_rad + math.pi) % (2 * math.pi) - math.pi
             relative_angle_deg = math.degrees(relative_angle_rad)
             
-            shift = max(-60, min(relative_angle_deg * 0.8, 60))
-            drive.moveAngle(relative_angle_deg + shift, 20)
+            # drive.moveTo(-0.2, 0, 0, self_x, self_y, self_heading)
+            if ball_y > 0.8:
+                drive.moveTo(ball_x, 0.7, 0, self_x, self_y, self_heading)
+            elif ball_y < -0.8:
+                drive.moveTo(ball_x, -0.7, 0, self_x, self_y, self_heading)
+            elif ball_x > 1.06:
+                drive.moveTo(1.0, ball_y, 0, self_x, self_y, self_heading)
+            elif ball_x < -1.06:
+                drive.moveTo(-1.0, ball_y, 0, self_x, self_y, self_heading)
+            else:
+                shift = max(-60, min(relative_angle_deg * 0.8, 60))
+                drive.moveAngle(relative_angle_deg + shift, 20)
             # print(f"Ball detected! Distance: {distance:.2f} m | Angle: {relative_angle_deg:.1f}°")
         else:
             # print("No signal from ball.")
