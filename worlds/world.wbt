@@ -32,8 +32,9 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.4836187048234742 0.4836194001914908 0.7295376783301107 1.8810449483332874
-  position 0.041500336435373035 -1.8819884222314696 4.616319618752393
+  orientation -0.3705692010555352 0.37057056145434886 0.8516782997191317 1.7306614655508434
+  position 0.07879081212869143 -2.8511570642602795 3.2130325660903267
+  follow "robot"
 }
 TexturedBackground {
 }
@@ -218,9 +219,12 @@ DEF BALL Robot {
     DEF emitter Emitter {
     }
     DEF BALL_SHAPE Shape {
-      appearance PBRAppearance {
-        baseColor 1 0.466667 0
-        metalness 0
+      appearance Appearance {
+        texture ImageTexture {
+          url [
+            "assets/ball.jpg"
+          ]
+        }
       }
       geometry Sphere {
         radius 0.021
@@ -238,8 +242,6 @@ DEF Y1 Robot_Y1 {
   supervisor TRUE
 }
 DEF Y2 Robot_Y2 {
-  hidden rotation_9 -1.745369652598643e-11 -4.214090929218648e-11 -1 0.7853981633974345
-  hidden rotation_12 -1.960127471848787e-11 4.7327481069791134e-11 0.9999999999999999 0.7853981633974252
   translation -0.72 0 0.04
   supervisor TRUE
 }
