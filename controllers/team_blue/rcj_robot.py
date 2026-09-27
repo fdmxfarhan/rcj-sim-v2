@@ -83,7 +83,7 @@ class RCJRobot:
                     # اعمال نیرو به مرکز توپ
                     self.ball_node.addForce([fx, fy, 0.0], False)
 
-    def apply_dribbler_pd(self, hold_dist=0.075, kp=100.0, kd=10.0):
+    def apply_dribbler_pd(self, hold_dist=0.075, kp=150.0, kd=20.0):
         """
         نگه‌داشتن پایدار توپ با فیدبک موقعیت و سرعت
         - hold_dist: فاصله نقطه هدف توپ از مرکز ربات (متر)
@@ -194,7 +194,7 @@ class RCJRobot:
         return self.is_ball_in_kicker()
 
     def kick(self):
-        force = 20.0
+        force = 100.0
         if not self.is_ball_in_kicker():
             self.has_kicked = False
             return False

@@ -182,12 +182,27 @@ PROTO Robot_Y2 [
         children IS extensionSlot
       }
     ]
-    boundingObject Pose {
-      translation 0 0 0.055
+    boundingObject Group {
       children [
-        Cylinder {
-          height 0.18
-          radius 0.085
+        # استوانه اصلی بدنه
+        Pose {
+          translation 0 0 0.06
+          children [
+            Cylinder {
+              height 0.16
+              radius 0.085
+            }
+          ]
+        }
+        # گارد پایینی ضد ورود توپ (اسکِرت نزدیک زمین)
+        Pose {
+          translation 0 0 -0.028
+          children [
+            Cylinder {
+              height 0.02
+              radius 0.088
+            }
+          ]
         }
       ]
     }

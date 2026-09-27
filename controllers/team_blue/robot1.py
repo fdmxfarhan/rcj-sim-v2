@@ -26,6 +26,6 @@ def run_robot(rcj):
         elif ball_pos[0] < -1.06:
             moveTo(rcj, -0.8, max(-0.8, min(ball_pos[1], 0.8)), 0)
         else:
-            moveAngle(rcj, relative_angle_deg + shift, 5, robot_heading)
+            moveAngle(rcj, relative_angle_deg + shift, 20, robot_heading)
     else:
         rcj.motor(0, 0, 0, 0)

@@ -8,12 +8,16 @@ EXTERNPROTO "../protos/Robot_B1.proto"
 EXTERNPROTO "../protos/Robot_B2.proto"
 
 WorldInfo {
+  basicTimeStep 8
+  physicsDisableTime 0.0
   contactProperties [
     ContactProperties {
       material1 "BALL"
       coulombFriction [
         0.5
       ]
+      softERP 0.8
+      softCFM 0.00001
     }
     ContactProperties {
       material1 "kicker_pad"
