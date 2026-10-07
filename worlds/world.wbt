@@ -9,7 +9,7 @@ EXTERNPROTO "../protos/Robot_B2.proto"
 
 WorldInfo {
   basicTimeStep 8
-  physicsDisableTime 0.0
+  physicsDisableTime 0
   contactProperties [
     ContactProperties {
       material1 "BALL"
@@ -17,7 +17,7 @@ WorldInfo {
         0.5
       ]
       softERP 0.8
-      softCFM 0.00001
+      softCFM 1e-05
     }
     ContactProperties {
       material1 "kicker_pad"
@@ -36,8 +36,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.3705692010555352 0.37057056145434886 0.8516782997191317 1.7306614655508434
-  position 0.07879081212869143 -2.8511570642602795 3.2130325660903267
+  orientation -0.49729283139739083 0.4972934354398672 0.7109142556660265 1.9055702487988058
+  position 0.027895178188237557 -1.4364780279541032 3.9555558018195773
   follow "robot"
 }
 TexturedBackground {
