@@ -221,23 +221,16 @@ class RCJRobot:
 
         return self.last_ball_pos
     def is_ball_in_kicker(self, min_dist=0.06, max_dist=0.11, lateral_tolerance=0.045):
-        robot_pos = self.get_position()
         ball_pos = self.get_ball_position()
 
-        if ball_pos is None or robot_pos is None:
+        if ball_pos is None:
             return False
 
-        dx = ball_pos[0] - robot_pos[0]
-        dy = ball_pos[1] - robot_pos[1]
+        dx = ball_pos[0]
+        dy = ball_pos[1]
 
-        heading = self.get_heading()
-        cos_h = math.cos(heading)
-        sin_h = math.sin(heading)
 
-        forward = dx * cos_h + dy * sin_h
-        lateral = -dx * sin_h + dy * cos_h
-
-        return (min_dist <= forward <= max_dist) and (abs(lateral) <= lateral_tolerance)
+        return (min_dist <= dy <= max_dist) and (abs(dx) <= lateral_tolerance)
     def is_ball_touched(self):
         return self.is_ball_in_kicker()
     def kick(self):
