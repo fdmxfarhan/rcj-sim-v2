@@ -3,7 +3,7 @@ import math
 import random
 TIME_STEP = 32
 STUCK_TIMEOUT = 3.0
-MOVE_THRESHOLD = 0.008  # متر
+MOVE_THRESHOLD = 0.10  # متر - radius the ball must leave within STUCK_TIMEOUT to count as progress
 # ۵ نقطه استاندارد برای اسپاون مجدد توپ در صورت گیر کردن
 RESPAWN_POINTS = [
     [0.0, 0.0, 0.03],
@@ -619,11 +619,14 @@ while robot.step(TIME_STEP) != -1:
         # print(f"[Out of Bounds] Ball returned: {respawn_pos[:2]}")
         continue
     # ۴. بررسی گیر کردن توپ (Stuck)
+    # last_position is where the ball was when the stuck timer started, so a
+    # slowly rolling ball still counts as progress once it leaves that radius.
     moved = distance2d(current_position, last_position)
     if moved < MOVE_THRESHOLD:
         stuck_time += TIME_STEP / 1000.0
     else:
         stuck_time = 0.0
+        last_position = current_position[:]
     if stuck_time >= STUCK_TIMEOUT:
         target = nearest_point(current_position, RESPAWN_POINTS)
 
@@ -637,4 +640,3 @@ while robot.step(TIME_STEP) != -1:
             # All respawn positions are occupied.
             # Retry on the next simulation step.
             stuck_time = STUCK_TIMEOUT
-    last_position = current_position[:]
