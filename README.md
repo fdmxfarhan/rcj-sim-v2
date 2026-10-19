@@ -112,7 +112,7 @@ def loop(rcj):
     if ball_in_kicker:
         rcj.kick()
     if ball_pos:
-        ball_angle = angleBetween(rcj, ball_pos, robot_pos)
+        ball_angle = getAngle(rcj, ball_pos)
         moveAngle(rcj, ball_angle, 5, robot_heading)
     else:
         rcj.motor(0, 0, 0, 0)
@@ -138,7 +138,7 @@ def loop(rcj):
 
 ### 2. Retrieving the Ball Position
 
-The following function retrieves the ball's position on the field and stores it in a variable. It returns a two-element array in the format `[x, y]`.
+The following function retrieves the ball's position **relative to the robot** and stores it in a variable. It returns a two-element array `[x, y]` in metres, where `y` points straight ahead of the robot and `x` points to the robot's left. It returns `None` when the ball is more than 0.8 m away or another robot blocks the line of sight.
 
 <div dir="ltr">
 
@@ -148,9 +148,15 @@ ball_pos = rcj.get_ball_position()
 
 </div>
 
-The field's coordinate system is shown below. The center of the field is the origin of the coordinate system.
+To get the ball's direction in degrees (0 is straight ahead, positive is to the left), use `getAngle` from `utils.py`:
 
-![Field coordinate axes](docs/pic/axis.png)
+<div dir="ltr">
+
+```python
+ball_angle = getAngle(rcj, ball_pos)
+```
+
+</div>
 
 ### 3. Compass Sensor
 
@@ -175,6 +181,10 @@ robot_pos = rcj.get_position()
 ```
 
 </div>
+
+The field's coordinate system is shown below. The center of the field is the origin of the coordinate system. Coordinates are mirrored for the blue team, so both teams attack toward +X.
+
+![Field coordinate axes](docs/pic/axis.png)
 
 ### 5. Ball Contact Sensor
 
