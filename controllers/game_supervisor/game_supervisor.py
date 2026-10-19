@@ -76,7 +76,7 @@ NEUTRAL_POSITIONS = [
     [ 0.75, -0.55, ROBOT_Z],
     [ 0.75,  0.55, ROBOT_Z],
 ]
-NEUTRAL_OCCUPANCY_DISTANCE = 0.25
+NEUTRAL_OCCUPANCY_DISTANCE = 0.2
 BALL_SAFE_Z = 0.02
 
 # ---- Match Timer ----
@@ -164,20 +164,10 @@ def check_ball_below_field(position):
     if z < -BALL_SAFE_Z:
         return True, [x, y, BALL_SAFE_Z]
     return False, position
-def get_penalty_position(robot_pos):
-    """
-    Put the robot outside the field according to
-    the wall it touched.
-    """
-    wall = get_wall_touch(robot_pos)
-    if wall is None:
-        # Fallback position
-        return PENALTY_POSITIONS["right"][:]
-    return PENALTY_POSITIONS[wall][:]
 def start_wall_penalty(robot_name):
     """
     Send a robot behind its own team's goal and start
-    a 60-second wall penalty.
+    a WALL_PENALTY_TIME-second wall penalty.
     The robot's rotation is also reset so that it faces
     toward the field.
     """
@@ -305,7 +295,7 @@ def find_farthest_neutral_position(ball_position, returning_robot_name):
     return None
 def release_wall_penalty(robot_name, ball_position):
     """
-    Release a robot after its 60-second penalty.
+    Release a robot after its WALL_PENALTY_TIME-second penalty.
     The robot is placed at the farthest available
     neutral position from the current ball.
     """
@@ -344,7 +334,7 @@ def update_wall_penalties(ball_position):
     """
     Update all wall penalties.
     1. Keep penalized robots outside.
-    2. Release robots whose 60 seconds have expired.
+    2. Release robots whose penalty time has expired.
     3. Detect new wall touches for active robots.
     """
     now = robot.getTime()
@@ -356,7 +346,7 @@ def update_wall_penalties(ball_position):
         if penalty["active"]:
             # Keep robot outside
             maintain_wall_penalty(robot_name)
-            # Has the 60 seconds expired?
+            # Has the penalty time expired?
             if now >= penalty["until"]:
                 release_wall_penalty(
                     robot_name,
@@ -374,7 +364,6 @@ def update_wall_penalties(ball_position):
 def distance2d(a, b):
     return math.hypot(a[0] - b[0], a[1] - b[1])
 
-NEUTRAL_OCCUPANCY_DISTANCE = 0.2
 def nearest_point(position, points):
     """
     Find the nearest unoccupied respawn point.
