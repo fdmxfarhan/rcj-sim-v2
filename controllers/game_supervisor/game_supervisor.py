@@ -412,6 +412,52 @@ def nearest_point(position, points):
 
     # All points are occupied.
     return None
+
+# ---- جدا کردن ربات‌های قفل‌شده (Locked Robots) ----
+LOCK_DISTANCE = 0.19   # robots whose centres are closer than this are touching
+LOCK_TIME = 1.0        # seconds both must have stayed still
+LOCK_MOVE = 0.02       # metres that still counts as "still"
+LOCK_PUSH = 0.06       # metres each robot is moved apart
+lock_history = {}      # robot name -> (time, position) it has stayed near since
+
+def separate_locked_robots():
+    """
+    Two robots that collide head-on can lock together physically (a wheel catches on
+    the other robot's skirt), and no wheel command can free them. Like a referee,
+    move each of them a few centimetres apart once both have been still for LOCK_TIME.
+    """
+    now = robot.getTime()
+    still = []
+    for robot_name, r_info in robots_data.items():
+        if wall_penalties[robot_name]["active"]:
+            lock_history.pop(robot_name, None)
+            continue
+        robot_position = r_info["translation"].getSFVec3f()
+        since = lock_history.get(robot_name)
+        if since is None or distance2d(robot_position, since[1]) > LOCK_MOVE:
+            lock_history[robot_name] = (now, robot_position)
+        elif now - since[0] >= LOCK_TIME:
+            still.append(robot_name)
+
+    for i, name_a in enumerate(still):
+        for name_b in still[i + 1:]:
+            pos_a = robots_data[name_a]["translation"].getSFVec3f()
+            pos_b = robots_data[name_b]["translation"].getSFVec3f()
+            distance = distance2d(pos_a, pos_b)
+            if distance >= LOCK_DISTANCE or distance < 1e-6:
+                continue
+            ux = (pos_b[0] - pos_a[0]) / distance
+            uy = (pos_b[1] - pos_a[1]) / distance
+            for robot_name, position, sign in ((name_a, pos_a, -1), (name_b, pos_b, 1)):
+                new_position = [
+                    max(FIELD_X_MIN + 0.12, min(FIELD_X_MAX - 0.12, position[0] + sign * ux * LOCK_PUSH)),
+                    max(FIELD_Y_MIN + 0.12, min(FIELD_Y_MAX - 0.12, position[1] + sign * uy * LOCK_PUSH)),
+                    position[2],
+                ]
+                robots_data[robot_name]["translation"].setSFVec3f(new_position)
+                robots_data[robot_name]["node"].resetPhysics()
+                lock_history[robot_name] = (now, new_position)
+            # print(f"[UNLOCK] {name_a} and {name_b} were locked together and moved apart.")
 def check_goal(pos):
     """
     بررسی گل شدن توپ برای دو تیم
@@ -562,6 +608,10 @@ def update_scoreboard(status_text="", status_color=0x00FF66):
             0.0,
             "Arial"
         )
+# شروع بازی با کیک‌آف از مرکز زمین، صرف‌نظر از موقعیت‌های ذخیره‌شده در فایل world
+respawn_ball([0.0, 0.0, BALL_Z])
+respawn_robots("YELLOW")
+last_position = [0.0, 0.0, BALL_Z]
 update_scoreboard()
 match_start_time = robot.getTime()
 update_match_timer()
@@ -582,6 +632,7 @@ while robot.step(TIME_STEP) != -1:
         # )
         continue
     update_wall_penalties(current_position)
+    separate_locked_robots()
     # ۱. مدیریت زمان بعد از گل (مکث و نمایش اعلان)
     if goal_cooldown > 0:
         goal_cooldown -= 1
