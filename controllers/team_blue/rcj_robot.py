@@ -89,8 +89,14 @@ class RCJRobot:
         err_x = target_x - ball_pos[0]
         err_y = target_y - ball_pos[1]
 
-        fx = kp * err_x - kd * ball_vel[0]
-        fy = kp * err_y - kd * ball_vel[1]
+        # Damp the ball's velocity relative to the hold point, which moves
+        # with the robot, so turning while dribbling does not brake the ball.
+        robot_vel = self.robot.getSelf().getVelocity()
+        target_vx = robot_vel[0] - robot_vel[5] * (target_y - ry)
+        target_vy = robot_vel[1] + robot_vel[5] * (target_x - rx)
+
+        fx = kp * err_x + kd * (target_vx - ball_vel[0])
+        fy = kp * err_y + kd * (target_vy - ball_vel[1])
 
         self.ball_node.addForce([fx, fy, 0.0], False)
     def get_position(self):
