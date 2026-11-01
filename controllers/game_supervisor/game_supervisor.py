@@ -58,13 +58,14 @@ PENALTY_POSITIONS = {
     "B1": [ 1.5, -0.15, ROBOT_Z ],
     "B2": [ 1.5, 0.15, ROBOT_Z ]
 }
+# Also used when a robot is released back onto the field.
 PENALTY_ROTATIONS = {
-    # Yellow goal is at +X, so face toward -X
-    "Y1": [0, 0, 1, math.pi],
-    "Y2": [0, 0, 1, math.pi],
-    # Blue goal is at -X, so face toward +X
-    "B1": [0, 0, 1, 0],
-    "B2": [0, 0, 1, 0],
+    # Yellow defends the -X goal and attacks +X, so face toward +X
+    "Y1": [0, 0, 1, 0],
+    "Y2": [0, 0, 1, 0],
+    # Blue defends the +X goal and attacks -X, so face toward -X
+    "B1": [0, 0, 1, math.pi],
+    "B2": [0, 0, 1, math.pi],
 }
 # Neutral positions available after a wall penalty.
 # All of them are safely inside the field.
@@ -231,6 +232,8 @@ def maintain_wall_penalty(robot_name):
     r_info["translation"].setSFVec3f(
         penalty["penalty_position"]
     )
+    if r_info["rotation"]:
+        r_info["rotation"].setSFRotation(PENALTY_ROTATIONS[robot_name][:])
     r_info["node"].resetPhysics()
 def find_farthest_neutral_position(ball_position, returning_robot_name):
     """
@@ -329,6 +332,8 @@ def release_wall_penalty(robot_name, ball_position):
     r_info["translation"].setSFVec3f(
         target_position
     )
+    if r_info["rotation"]:
+        r_info["rotation"].setSFRotation(PENALTY_ROTATIONS[robot_name][:])
     r_info["node"].resetPhysics()
     # ---------------------------------------------
     # Clear penalty
