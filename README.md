@@ -78,6 +78,10 @@ The simulation project has the following file structure:
     <img src="./docs/pic/world.gif" alt="Webots simulation world">
 </p>
 
+## Performance Profile
+
+The world keeps an 8 ms physics timestep for stable ball contacts while robot controllers make decisions every 32 ms. The default robot visual is a lightweight cylinder. To inspect the original CAD body, set a robot instance's `detailedVisuals` field to `TRUE` in `worlds/world.wbt`.
+
 ## Robot Controllers
 
 Each team has a controller directory (`team_yellow` or `team_blue`) containing five Python files:

@@ -21,6 +21,7 @@ PROTO Robot_B2 [
   field SFString   customData      ""
   field SFBool     supervisor      FALSE
   field SFBool     synchronization TRUE
+  field SFBool     detailedVisuals FALSE
   field MFNode     extensionSlot   []
 ]
 {
@@ -33,6 +34,7 @@ PROTO Robot_B2 [
     customData IS customData
     supervisor IS supervisor
     synchronization IS synchronization
+    contactMaterial "robot_body"
     children [
 
       # ---- Compass ----
@@ -96,6 +98,7 @@ PROTO Robot_B2 [
 
       # ---- Visual Details Only ----
 
+      %< if (fields.detailedVisuals.value) { >%
       # ---- 3D Body CAD Assembly ----
       Pose {
         translation 0 0 -0.03
@@ -107,6 +110,25 @@ PROTO Robot_B2 [
           }
         ]
       }
+      %< } else { >%
+      # Low-detail visual used by the default performance profile.
+      Pose {
+        translation 0 0 0.06
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.08 0.08 0.08
+              roughness 0.7
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.12
+              radius 0.085
+            }
+          }
+        ]
+      }
+      %< } >%
 
 
 

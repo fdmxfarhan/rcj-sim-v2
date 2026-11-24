@@ -138,15 +138,9 @@ def lastBallPosition(robot):
 def teammateOnField(robot):
     """False while our teammate is off the field serving a wall penalty.
 
-    Robots can't message each other, so this reads the teammate's position through the
-    Supervisor API (the team controllers already run as Supervisors).
+    The position is refreshed once per control tick by RCJRobot.
     """
-    team, number = robot.name[-2], robot.name[-1]
-    mate = robot.robot.getFromDef(team + ("2" if number == "1" else "1"))
-    if mate is None:
-        return True
-    x, y = mate.getPosition()[:2]
-    return abs(x) < 1.25 and abs(y) < 0.95
+    return robot.is_teammate_on_field()
 
 def clearBall(robot, ball, goal=(-1.1, 0.0), speed=20):
     """Push the ball away from our own goal, going round it first if we're on the wrong side.

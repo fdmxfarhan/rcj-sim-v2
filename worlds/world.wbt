@@ -14,7 +14,8 @@ WorldInfo {
   physicsDisableTime 0
   contactProperties [
     ContactProperties {
-      material1 "BALL"
+      material1 "ball"
+      material2 "field_material"
       coulombFriction [
         0.5
       ]
@@ -22,11 +23,24 @@ WorldInfo {
       softCFM 1e-05
     }
     ContactProperties {
-      material1 "kicker_pad"
+      material1 "ball"
+      material2 "robot_body"
       coulombFriction [
-        0.7
+        0.5
       ]
-      bounce 0.85
+      bounce 0.1
+      softERP 0.8
+      softCFM 1e-05
+    }
+    ContactProperties {
+      material1 "ball"
+      material2 "omni_wheel"
+      coulombFriction [
+        0.5
+      ]
+      bounce 0.1
+      softERP 0.8
+      softCFM 1e-05
     }
     ContactProperties {
       material1 "omni_wheel"
@@ -220,6 +234,7 @@ DEF FIELD Solid {
 DEF BALL Robot {
   translation 0 0 0.0208429
   rotation -0.9999999999999999 6.918127723387872e-11 -1.3182422995955425e-09 0.9670423770661614
+  contactMaterial "ball"
   children [
     DEF gps GPS {
     }
@@ -247,20 +262,24 @@ DEF BALL Robot {
 DEF Y1 Robot_Y1 {
   translation -0.4 0.01 0.04
   supervisor TRUE
+  detailedVisuals TRUE
 }
 DEF Y2 Robot_Y2 {
   translation -0.72 0 0.04
   supervisor TRUE
+  detailedVisuals TRUE
 }
 DEF B1 Robot_B1 {
   translation 0.4 -0.00999995 0.04
   rotation 0 0 1 3.14159
   supervisor TRUE
+  detailedVisuals TRUE
 }
 DEF B2 Robot_B2 {
   translation 0.72 -1.59216e-07 0.04
   rotation 0 0 1 3.14159
   supervisor TRUE
+  detailedVisuals TRUE
 }
 Robot {
   name "robot(1)"
