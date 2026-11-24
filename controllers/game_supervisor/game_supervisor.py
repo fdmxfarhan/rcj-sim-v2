@@ -130,6 +130,7 @@ for r_def in robot_defs:
 score_yellow = 0
 score_blue = 0
 goal_cooldown = 0
+last_timer_text = None
 
 
 def get_wall_touch(robot_pos):
@@ -525,7 +526,7 @@ def update_match_timer():
     """
     Update the 10-minute match countdown.
     """
-    global match_finished
+    global match_finished, last_timer_text
     if match_finished:
         remaining = 0.0
     else:
@@ -534,17 +535,19 @@ def update_match_timer():
     minutes = int(remaining // 60)
     seconds = int(remaining % 60)
     timer_text = f"{minutes:02d}:{seconds:02d}"
-    # Display timer at the top center
-    robot.setLabel(
-        14,
-        timer_text,
-        0.47,
-        0.01,
-        0.12,
-        0xFFFFFF,
-        0.0,
-        "Arial"
-    )
+    # The supervisor runs every 32 ms but this value only changes once per second.
+    if timer_text != last_timer_text:
+        robot.setLabel(
+            14,
+            timer_text,
+            0.47,
+            0.01,
+            0.12,
+            0xFFFFFF,
+            0.0,
+            "Arial"
+        )
+        last_timer_text = timer_text
     # Match finished
     if remaining <= 0.0 and not match_finished:
         match_finished = True
